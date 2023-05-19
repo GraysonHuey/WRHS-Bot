@@ -5,17 +5,14 @@ import datetime
 import requests
 import discord
 import re
+import openai
 from keep_alive import keep_alive
 from discord.ext import commands
 
-intents = discord.Intents.default()
-intents.typing = False
-intents.presences = False
 
 bot = commands.Bot(
 	command_prefix="$",  # Change to desired prefix
 	case_insensitive=True,  # Commands aren't case-sensitive
-    intents=intents
 )
 
 bot.author_id = 1062859498483617873  # Change to your discord id!!!
@@ -48,7 +45,8 @@ roasts = [
     "Are you at a loss for words, or did you exhaust your entire vocabulary"
     "You can be anything you want, except good looking or smart",
     "You sound reasonable… Time to up my medication",
-    "My phone battery lasts longer than your relationships"
+    "My phone battery lasts longer than your relationships",
+    "You have two brain cells that don't even connect"
 ]
 
 pickupLines = [
@@ -138,6 +136,28 @@ async def rolldice(ctx, number: int):
         await ctx.send(f"You rolled {dice1} and {dice2} (Sum: {sum})")
     else:
         await ctx.send("Please input the amount of dice you want to roll (1 or 2).")
+
+keys = [
+    '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',
+    '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',
+    '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'
+]
+
+@bot.command()
+async def ai(ctx, *, message):
+    openai.api_key = random.choice(keys)
+    # Get a response from ChatGPT
+    response = openai.Completion.create(
+        engine='davinci',
+        prompt=message,
+        max_tokens=50,
+        n=1,
+        stop=None,
+        temperature=0.7
+    ).choices[0].text.strip()
+
+    ctx.send(response)
+
 
 @bot.command()
 async def rolld12(ctx, number: int):
@@ -352,6 +372,8 @@ async def on_message_delete(message):
     channel = bot.get_channel(916449762977398804)
     if message.channel == 916449762977398804:
         pass
+    elif message.startswith('..'):
+        pass
     else:
         await channel.send(f"***__Message deleted__***\nAuthor: {message.author.mention}\nMessage: {message.content}")
 
@@ -359,6 +381,8 @@ async def on_message_delete(message):
 async def on_message_edit(before, after):
     channel = bot.get_channel(916449762977398804)
     if message.channel == 916449762977398804:
+        pass
+    elif message.startswith('..'):
         pass
     else:
         await channel.send(f"***__Message edited__***\nAuthor: {before.author}\nBefore: {before.content}\nAfter: {after.content}")
